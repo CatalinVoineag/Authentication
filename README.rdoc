@@ -1,28 +1,134 @@
-== README
+'use strict';
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+// End to End Test with Protractor
+describe('End to End Test', function(){
 
-Things you may want to cover:
+  // Test Variables
+  // Input models
+  var stock = element(by.model('stock'));
+  var registration = element(by.model('registration'));
+  // Input strings
+  var stockKey = 'cc_jnrp8yp5w2fq49po';
+  var registrationKey = 'SV64LKO';
+  // Targeting the elements that need to be tested
+  var search = element(by.buttonText('Search'));
+  var image = element(by.css('.arnold-car'));
+  var design = element(by.css('.car'));
+  var modal = element(by.css('.modal'));
+  var reset = element(by.buttonText('Reset'));
 
-* Ruby version
+  // Variable to make protractor wait for the browser to load something
+  global.EC = protractor.ExpectedConditions
+  
+  // Before each assertion load the browser and point it to this address
+  beforeEach(function(){
+    browser.get('/app');
+    
+  });
 
-* System dependencies
+  // Check if the design car is present
+  // Return the default car and loop through the its images
+  it('check for design car and return the default car and test the modal', function(){
 
-* Configuration
+    // Check if the design car is present
+    expect(design.isPresent()).toBeTruthy();
 
-* Database creation
+    // Click on the search button
+    search.click();
 
-* Database initialization
+    // Check if the searched car first image is present
+    expect(image.isPresent()).toBeTruthy();
+    expect(image.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/350/f');
 
-* How to run the test suite
+    // Click on the image and check if the modal opens
+    image.click();
+    expect(modal.isPresent()).toBeTruthy();
 
-* Services (job queues, cache servers, search engines, etc.)
+    // Wait for the modal to load and set the variables for testing the modal
+    var next = element(by.css('.arrow-next'));
+    var modalImage = element(by.css('.slide'));
+    var exit = element(by.css('.close'));
+    browser.wait(EC.visibilityOf(next), 5000);
+    
+    // Loop through all the 6 images of the searched car and checking if there are displayed
+    next.click();
+    expect(modalImage.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/800/f');
+    next.click();
+    expect(modalImage.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/800/f');
+    next.click();
+    expect(modalImage.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/800/f');
+    next.click();
+    expect(modalImage.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/800/f');
+    next.click();
+    expect(modalImage.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/800/f');
 
-* Deployment instructions
+    // Exit the modal
+    exit.click();
 
-* ...
+    // Expect the searched car first image to be displayed 
+    expect(image.isPresent()).toBeTruthy();
+    expect(image.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/AGRANO0955DX-M-/350/f');
 
+  });
+  
+  // Test the reset button and search for another car
+  it('should click on reset button and search for another car', function(){
 
-Please feel free to use a different markup language if you do not plan to run
-<tt>rake doc:app</tt>.
+    // Click the reset button and expect the input forms to be empty
+    reset.click();
+    expect(stock.getText()).toBe('');
+    expect(registration.getText()).toBe('');
+
+    // Fill in the input forms with the stock reference and registration plate
+    stock.sendKeys(stockKey);
+    registration.sendKeys(registrationKey);
+
+    // Click on the search button and expect to find the first image of the searched car 
+    search.click();
+    expect(image.isPresent()).toBeTruthy();
+    expect(image.getAttribute('src')).toBe('http://vcache.arnoldclark.com/imageserver/COCK_LJ4N6RVPSY/350/f');
+
+  });
+
+  // Test the input fields to check if the values are valid
+  it('should test the input fields to see if they meet te requirements', function(){
+
+  // Click reset button
+  reset.click();
+
+  // Target the error clases
+  var error = element(by.css('.error'));
+  var error2 = element(by.css('.error2'));
+  
+  // Fill in the input fields with values that are too short
+  var stockKey = 'ABCDE';
+  var registrationKey = 'SB1';
+
+  stock.sendKeys(stockKey);
+  registration.sendKeys(registrationKey);
+
+  // Expect to receive an error message 
+  expect(error.getText()).toBe('At least 9 characters');
+  expect(error2.getText()).toBe('At least 7 characters');
+
+  // Fill in input fields with values that are too long
+  // Click reset
+  reset.click();
+
+  // Set variables
+  var error3 = element(by.css('.error3'));
+  var error4 = element(by.css('.error4'));
+  var stockKey = 'ABCDABCDABCABCBABCBABSSAAAAAA';
+  var registrationKey = 'abdfbasdfjas51651616165151';
+
+  // Input the too long strings
+  stock.sendKeys(stockKey);
+  registration.sendKeys(registrationKey);
+
+  // Expect to receive an error message
+  expect(error3.getText()).toBe('Maximum 25 characters');
+  expect(error4.getText()).toBe('Maximum 25 characters');
+
+    });
+
+});
