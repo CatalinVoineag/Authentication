@@ -1,0 +1,15 @@
+
+<div class="form-signin col-sm-4 col-sm-offset-4">
+  <h1 class="form-signin-heading">Login</h1>
+
+  <%= form_for(:session, url: login_path) do |f| %>
+
+    <%= f.email_field :email, :placeholder => "Email", class: "form-control" %>
+
+    <%= f.password_field :password, :placeholder => "Passowrd", class: "form-control" %>
+
+    <%= f.submit "Login", class: "btn btn-primary btn-block" %>
+
+  <% end %>
+
+</div>
